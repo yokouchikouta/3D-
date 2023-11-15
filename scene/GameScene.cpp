@@ -2,7 +2,7 @@
 #include "TextureManager.h"
 #include <cassert>
 
-#include"Player.h"
+//#include"Player.h"
 
 GameScene::GameScene() {}
 
@@ -16,19 +16,28 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
+	viewProjection_.farZ = 200.0f;
+	viewProjection_.translation_ = {0.0f, 2.0f, -10.0f};
 	viewProjection_.Initialize();
 
 	textureHandle_ = TextureManager::Load("mario.jpg");
 
-	model_.reset(Model::Create());
+	modelSkydome_.reset(Model::CreateFromOBJ("skydome", true));
+	modelGround_.reset(Model::CreateFromOBJ("ground", true));
+	modelFighter_.reset(Model::CreateFromOBJ("float", true));
+	
 
 	player_ = std::make_unique<Player>();
+	ground_ = std::make_unique<Ground>();
+	skydome_ = std::make_unique<Skydome>();
 
-	player_->Initialize(model_.get(), textureHandle_);
+	player_->Initialize(modelFighter_.get());
+	ground_->Initialize(modelGround_.get());
+	skydome_->Initialize(modelSkydome_.get());
 }
 
 void GameScene::Update() {
-	player_->Update();
+	
 }
 
 void GameScene::Draw() {
@@ -59,6 +68,8 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	player_->Draw(viewProjection_);
+	ground_->Draw(viewProjection_);
+	skydome_->Draw(viewProjection_);
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
 #pragma endregion
